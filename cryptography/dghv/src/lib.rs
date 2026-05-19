@@ -269,18 +269,11 @@ fn sample_subset(n: u64) -> Vec<u64> {
         panic!("n must be greater than 0");
     }
     let subset_size: Integer = sample_below((Integer::from(1) << n as usize) - 1) + 1;
-    let indices = (0..n)
-        .into_iter()
-        .filter_map(|i| {
-            let bit = subset_size.get_bit(i as u32);
-            if bit {
-                Some(i)
-            } else {
-                None
-            }
+    (0..n)
+        .filter(|i| {
+            subset_size.get_bit(*i as u32)
         })
-        .collect();
-    indices
+        .collect::<Vec<u64>>()
 }
 
 /// Compute the quotient of a and b, rounding to the nearest integer.
@@ -511,7 +504,7 @@ impl Parameters {
     /// Computes the estimated multiplicative depth before bootstrapping based on the parameters
     /// and the p/8 noise bound.
     pub fn get_estimated_depth(&self) -> u32 {
-        let allowed_noise_bits = self.eta.checked_sub(4).unwrap_or(0);
+        let allowed_noise_bits = self.eta.saturating_sub(4);
         if allowed_noise_bits == 0 {
             return 0;
         }
@@ -547,9 +540,9 @@ impl Parameters {
 
     /// Computes the required bootstrapping depth to reach a noise level of theta.
     pub fn get_bootstrap_depth(theta: u32) -> u32 {
-        let n = ceil_log2_u64(theta as u64) as u32 + 3;
+        let n = ceil_log2_u64(theta as u64) + 3;
         // The max carry chain length is bounded by the accumulator length.
-        n + 1 + (ceil_log2_u64(theta as u64) as u32) + 1
+        n + 1 + (ceil_log2_u64(theta as u64)) + 1
     }
 
     /// Generate the keys and the encryptor, decryptor and evaluator objects.
@@ -600,7 +593,7 @@ impl Parameters {
 
         // Encrypt the sparse subset selection array
         let s_enc: Vec<Integer> = (0..self.big_theta)
-            .map(|i| enc.encrypt(s.contains(&(i as u64))))
+            .map(|i| enc.encrypt(s.contains(&i)))
             .collect();
         // Generate the encrypted one and zero for homomorphic operations.
         let enc_one = enc.encrypt(true);
@@ -690,8 +683,7 @@ impl Decryptor {
             .iter()
             .fold(Integer::from(0), |acc, &idx| acc + &z[idx as usize]);
         let rounded = fixed_point_round_to_int(sum, n as u64);
-        let m = (ciphertext - rounded).is_odd();
-        m
+        (ciphertext - rounded).is_odd()
     }
 }
 
@@ -797,8 +789,8 @@ impl Evaluator {
     /// Adds an encrypted bit at the specified position, tracking empty slots to prevent noise explosion.
     fn add_bit_at(
         &self,
-        acc: &mut Vec<Integer>,
-        acc_init: &mut Vec<bool>,
+        acc: &mut [Integer],
+        acc_init: &mut [bool],
         mut bit: Integer,
         pos: usize,
     ) {
