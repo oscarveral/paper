@@ -11,7 +11,7 @@ The implementation includes the following functionalities:
 - Homomorphic addition and multiplication operations.
 - Squashed bootstrap circuit to allow for infinite homomorphic operations.
 
-The specific variant implemented an the exact multiple of $p$ for the $x_0$ public key element, allowing for modular reduction during operation.
+The specific variant implemented an the exact multiple of $p$ for the $x_0$ public key element, allowing for modular reduction during operation. Includes also estimations for secure parameter generation based on the security level and the number of homomorphic operations needed.
 
 ## Citations
 
