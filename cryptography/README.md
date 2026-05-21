@@ -9,3 +9,4 @@ This directory contains implementations of cryptographic primitives, encryption 
 ## Traditional Encryption Schemes.
 
 - **[A Method for Obtaining Digital Signatures and Public-Key Cryptosystems](rsa/README.md)**: This implementation covers the RSA encryption scheme, which is widely used for secure data transmission. It includes key generation, encryption, and decryption processes.
+- **[A Public-Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms](gamal/README.md)**: This implementation is based on the ElGamal encryption scheme. It provides a method for secure communication using public-key cryptography, allowing for encryption and digital signatures.
